@@ -65,6 +65,18 @@ export class RoomManager {
   }
 
   /**
+   * Удаляет объект из комнаты
+   * @param roomId UUID комнаты
+   * @param objectId ID объекта для удаления
+   * @returns true если объект найден и удален, false иначе
+   */
+  deleteObject(roomId: string, objectId: string): boolean {
+    const room = this.rooms.get(roomId);
+    if (!room) return false;
+    return room.objects.delete(objectId);
+  }
+
+  /**
    * Получает все объекты комнаты в виде массива
    * @param roomId UUID комнаты
    * @returns Массив объектов или пустой массив

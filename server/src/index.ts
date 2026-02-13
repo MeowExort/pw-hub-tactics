@@ -9,6 +9,7 @@ import type {
   SocketData,
   JoinRoomPayload,
   UpdateObjectPayload,
+  DeleteObjectPayload,
   RoomObject,
 } from './types/socket-events.js';
 
@@ -110,6 +111,26 @@ io.on('connection', (socket: TypedSocket) => {
     
     // Рассылаем новый объект всем участникам комнаты, кроме отправителя
     socket.to(roomId).emit('object_created', payload);
+  });
+
+  /**
+   * Обработчик удаления объекта.
+   * Удаляет объект из состояния комнаты и рассылает остальным участникам.
+   */
+  socket.on('delete_object', (payload: DeleteObjectPayload) => {
+    const roomId = socket.data.roomId;
+    if (!roomId) {
+      console.warn(`User ${socket.id} tried to delete object without joining a room`);
+      return;
+    }
+
+    // Удаляем объект из состояния комнаты
+    const deleted = roomManager.deleteObject(roomId, payload.objectId);
+    
+    if (deleted) {
+      // Рассылаем удаление всем участникам комнаты, кроме отправителя
+      socket.to(roomId).emit('object_deleted', payload);
+    }
   });
 
   // Обработчик тестового события ping

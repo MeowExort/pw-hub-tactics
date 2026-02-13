@@ -50,6 +50,14 @@ export interface RoomState {
 }
 
 /**
+ * Данные для удаления объекта
+ */
+export interface DeleteObjectPayload {
+  /** ID объекта для удаления */
+  objectId: string;
+}
+
+/**
  * События, отправляемые клиентом на сервер
  */
 export interface ClientToServerEvents {
@@ -59,6 +67,8 @@ export interface ClientToServerEvents {
   update_object: (payload: UpdateObjectPayload) => void;
   /** Создание нового объекта */
   create_object: (payload: RoomObject) => void;
+  /** Удаление объекта */
+  delete_object: (payload: DeleteObjectPayload) => void;
   /** Тестовое событие ping */
   ping: () => void;
 }
@@ -71,6 +81,8 @@ export interface ServerToClientEvents {
   object_updated: (payload: UpdateObjectPayload) => void;
   /** Broadcast создания нового объекта */
   object_created: (payload: RoomObject) => void;
+  /** Broadcast удаления объекта */
+  object_deleted: (payload: DeleteObjectPayload) => void;
   /** Начальное состояние комнаты при подключении */
   room_state: (objects: RoomObject[]) => void;
   /** Тестовое событие pong */
