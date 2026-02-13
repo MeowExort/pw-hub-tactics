@@ -26,6 +26,9 @@ importers:
       react-konva:
         specifier: ^19.2.2
         version: 19.2.2(@types/react@19.2.14)(konva@10.2.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      react-konva-utils:
+        specifier: ^2.0.0
+        version: 2.0.0(konva@10.2.0)(react-dom@19.2.3(react@19.2.3))(react-konva@19.2.2(@types/react@19.2.14)(konva@10.2.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(react@19.2.3)
       socket.io-client:
         specifier: ^4.8.3
         version: 4.8.3
@@ -2357,6 +2360,14 @@ packages:
 
   react-is@17.0.2:
     resolution: {integrity: sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==}
+
+  react-konva-utils@2.0.0:
+    resolution: {integrity: sha512-pOb+TF13gFAjfPmUqsE42J4GJ+xhUS97qS32p0NRTqSeqtamWyKJikGa1XeVvV5yItu9SWDo7onL79GGPG96HQ==}
+    peerDependencies:
+      konva: ^8.3.5 || ^9.0.0 || ^10.0.0
+      react: ^18.2.0 || ^19.0.0
+      react-dom: ^18.2.0 || ^19.0.0
+      react-konva: ^18.2.14 || ^19.0.10
 
   react-konva@19.2.2:
     resolution: {integrity: sha512-fgIevJSiZ6mYxouR0XLq7oKgQkfHHySHyNpyc1f/3in0xXq8BV7M7Y82obyoBPOAj35TBUPuZ568qZcelYm3ag==}
@@ -5216,6 +5227,14 @@ snapshots:
   react-is@16.13.1: {}
 
   react-is@17.0.2: {}
+
+  react-konva-utils@2.0.0(konva@10.2.0)(react-dom@19.2.3(react@19.2.3))(react-konva@19.2.2(@types/react@19.2.14)(konva@10.2.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(react@19.2.3):
+    dependencies:
+      konva: 10.2.0
+      react: 19.2.3
+      react-dom: 19.2.3(react@19.2.3)
+      react-konva: 19.2.2(@types/react@19.2.14)(konva@10.2.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      use-image: 1.1.4(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
 
   react-konva@19.2.2(@types/react@19.2.14)(konva@10.2.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3):
     dependencies:
