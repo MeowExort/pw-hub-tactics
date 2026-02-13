@@ -1,74 +1,73 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { io, Socket } from 'socket.io-client';
+import dynamic from 'next/dynamic';
 
+/**
+ * Динамический импорт TacticsMap для отключения SSR.
+ * Konva требует window/document, которые недоступны на сервере.
+ */
+const TacticsMap = dynamic(() => import('../components/TacticsMap'), {
+  ssr: false,
+  loading: () => <div className="w-[800px] h-[600px] bg-slate-800 animate-pulse rounded-lg" />,
+});
+
+/**
+ * Генерирует UUID v4 для идентификации комнаты.
+ */
+function generateUUID(): string {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
+
+/**
+ * Главная страница приложения.
+ * Управляет roomId через URL hash для изоляции комнат.
+ */
 export default function Home() {
-  const [socket, setSocket] = useState<Socket | null>(null);
-  const [isConnected, setIsConnected] = useState(false);
-  const [lastMessage, setLastMessage] = useState<string>('');
+  const [roomId, setRoomId] = useState<string | null>(null);
 
   useEffect(() => {
-    const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:3001';
-    const socketInstance = io(socketUrl);
-
-    socketInstance.on('connect', () => {
-      setIsConnected(true);
-      console.log('Connected to server');
-    });
-
-    socketInstance.on('connect_error', (error) => {
-      console.error('Connection error:', error);
-    });
-
-    socketInstance.on('disconnect', (reason) => {
-      setIsConnected(false);
-      console.log('Disconnected from server:', reason);
-    });
-
-    socketInstance.on('pong', () => {
-      setLastMessage('Received: pong');
-      console.log('Received pong from server');
-    });
-
-    setSocket(socketInstance);
-
-    return () => {
-      socketInstance.disconnect();
-    };
+    // Получаем roomId из URL hash или генерируем новый
+    let id = window.location.hash.slice(1);
+    
+    if (!id) {
+      // Если нет roomId в URL, генерируем новый и добавляем в hash
+      id = generateUUID();
+      window.location.hash = id;
+    }
+    
+    setRoomId(id);
   }, []);
 
-  const sendPing = () => {
-    if (socket) {
-      console.log('Sending ping...');
-      socket.emit('ping');
-      setLastMessage('Sent: ping');
-    }
-  };
+  // Ждем пока roomId будет определен (клиентский рендеринг)
+  if (!roomId) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen p-8">
+        <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-8 font-[family-name:var(--font-geist-sans)]">
       <main className="flex flex-col gap-8 items-center">
-        <h1 className="text-2xl font-bold">Tactics Web App - Socket.io Test</h1>
+        <h1 className="text-2xl font-bold">PW Hub Tactics</h1>
         
-        <div className="flex items-center gap-2">
-          <div className={`w-3 h-3 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`}></div>
-          <span>{isConnected ? 'Connected' : 'Disconnected'}</span>
+        {/* Отображаем ID комнаты для возможности поделиться ссылкой */}
+        <div className="text-sm text-gray-500">
+          Комната: <code className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">{roomId}</code>
         </div>
-
-        <button
-          onClick={sendPing}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-          disabled={!isConnected}
-        >
-          Send Ping
-        </button>
-
-        {lastMessage && (
-          <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded">
-            {lastMessage}
-          </div>
-        )}
+        
+        <TacticsMap roomId={roomId} />
+        
+        <p className="text-sm text-gray-500 max-w-md text-center">
+          Поделитесь ссылкой с другими участниками для совместного планирования.
+          Все изменения синхронизируются в реальном времени.
+        </p>
       </main>
     </div>
   );

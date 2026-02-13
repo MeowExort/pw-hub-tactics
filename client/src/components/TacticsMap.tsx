@@ -1,32 +1,39 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Stage, Layer, Circle, Image } from 'react-konva';
 import useImage from 'use-image';
+import { useRoomSync } from '../hooks/useRoomSync';
+import { RoomObject } from '../types/socket-events';
 
 /**
- * Интерфейс для объектов на карте
+ * Пропсы компонента TacticsMap
  */
-interface MapObject {
-  id: string;
-  x: number;
-  y: number;
-  type: 'catapult';
+interface TacticsMapProps {
+  /** UUID комнаты для синхронизации */
+  roomId: string;
 }
 
 /**
  * Компонент интерактивной карты для планирования тактики ГВГ.
  * Использует Konva.js для отрисовки графики на Canvas.
+ * Синхронизирует позиции объектов между пользователями через Socket.io.
  */
-const TacticsMap: React.FC = () => {
-  const [objects, setObjects] = useState<MapObject[]>([]);
+const TacticsMap: React.FC<TacticsMapProps> = ({ roomId }) => {
+  const {
+    objects,
+    isConnected,
+    emitUpdateObject,
+    emitUpdateObjectForce,
+    createObject,
+    updateObjectLocal,
+  } = useRoomSync(roomId);
   
   // Размеры карты (базовые)
   const MAP_WIDTH = 800;
   const MAP_HEIGHT = 600;
 
   // Загрузка фонового изображения (заглушка)
-  // useImage возвращает [image, status]
   const [mapImage] = useImage('https://placehold.co/800x600/223344/white?text=GVG+MAP+STUB');
 
   /**
@@ -44,7 +51,6 @@ const TacticsMap: React.FC = () => {
    * Обработчик клика по сцене для добавления нового объекта.
    */
   const handleStageClick = (e: any) => {
-    // В Konva событие клика на Stage передает объект, у которого есть getStage()
     const stage = e.target.getStage ? e.target.getStage() : e.currentTarget?.getStage?.();
     if (!stage) return;
 
@@ -57,34 +63,57 @@ const TacticsMap: React.FC = () => {
     if (pointerPosition) {
       const constrainedPos = boundBox(pointerPosition);
       
-      const newObject: MapObject = {
+      const newObject: RoomObject = {
         id: Date.now().toString(),
         x: constrainedPos.x,
         y: constrainedPos.y,
         type: 'catapult',
       };
-      setObjects([...objects, newObject]);
+      
+      // Создаем объект через хук синхронизации
+      createObject(newObject);
     }
   };
 
   /**
+   * Обработчик перемещения объекта (dragmove).
+   * Отправляет throttled обновления позиции на сервер.
+   */
+  const handleDragMove = (id: string, e: any) => {
+    const { x, y } = e.target.position();
+    const constrained = boundBox({ x, y });
+    
+    // Обновляем локально для плавности
+    updateObjectLocal(id, constrained);
+    
+    // Отправляем на сервер с throttle
+    emitUpdateObject(id, constrained);
+  };
+
+  /**
    * Обработчик завершения перетаскивания объекта.
+   * Гарантированно отправляет финальную позицию.
    */
   const handleDragEnd = (id: string, e: any) => {
     const { x, y } = e.target.position();
     const constrained = boundBox({ x, y });
     
-    setObjects(
-      objects.map((obj) => 
-        obj.id === id ? { ...obj, x: constrained.x, y: constrained.y } : obj
-      )
-    );
+    // Обновляем локально
+    updateObjectLocal(id, constrained);
+    
+    // Принудительно отправляем финальную позицию
+    emitUpdateObjectForce(id, constrained);
     
     e.target.position(constrained);
   };
 
   return (
     <div className="flex flex-col items-center gap-4">
+      {/* Индикатор подключения */}
+      <div className={`px-3 py-1 rounded-full text-sm ${isConnected ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`}>
+        {isConnected ? '🟢 Подключено' : '🔴 Отключено'}
+      </div>
+      
       <div className="map-container border-4 border-slate-700 rounded-lg overflow-hidden shadow-xl bg-slate-900">
         <Stage
           width={MAP_WIDTH}
@@ -117,6 +146,7 @@ const TacticsMap: React.FC = () => {
                 stroke="#331100"
                 strokeWidth={3}
                 draggable
+                onDragMove={(e) => handleDragMove(obj.id, e)}
                 onDragEnd={(e) => handleDragEnd(obj.id, e)}
                 dragBoundFunc={(pos) => boundBox(pos)}
                 data-testid="konva-icon"
