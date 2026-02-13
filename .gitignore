@@ -1,2 +1,4 @@
 .idea/
 docs/tasks
+client/node_modules
+server/node_modules
