@@ -1,0 +1,23 @@
+name: "🚀 Feature Request"
+description: Предложить новую идею или улучшение
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Суть предложения
+      description: Какую проблему решит эта функция или какое улучшение она принесет?
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Подробное описание
+      description: Опишите, как это должно работать.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Альтернативы
+      description: Рассматривали ли вы другие способы реализации?

@@ -1,0 +1,45 @@
+name: "🐞 Bug Report"
+description: Сообщить об ошибке или баге
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Спасибо за сообщение об ошибке! Пожалуйста, заполните форму ниже.
+  - type: textarea
+    id: description
+    attributes:
+      label: Описание бага
+      description: Четкое и краткое описание проблемы.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Шаги для воспроизведения
+      description: Как мы можем увидеть проблему?
+      placeholder: |
+        1. Открыть страницу...
+        2. Нажать на...
+        3. Увидеть ошибку...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Ожидаемое поведение
+      description: Что должно было произойти?
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Фактическое поведение
+      description: Что произошло на самом деле?
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Дополнительный контекст
+      description: Скриншоты, версия браузера, логи и т.д.
