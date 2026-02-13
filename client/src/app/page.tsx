@@ -4,10 +4,10 @@ import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 
 /**
- * Динамический импорт TacticsMap для отключения SSR.
+ * Динамический импорт TacticsMapWithDrawing для отключения SSR.
  * Konva требует window/document, которые недоступны на сервере.
  */
-const TacticsMap = dynamic(() => import('../components/TacticsMap'), {
+const TacticsMapWithDrawing = dynamic(() => import('../components/TacticsMapWithDrawing'), {
   ssr: false,
   loading: () => <div className="w-[800px] h-[600px] bg-slate-800 animate-pulse rounded-lg" />,
 });
@@ -62,7 +62,7 @@ export default function Home() {
           Комната: <code className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">{roomId}</code>
         </div>
         
-        <TacticsMap roomId={roomId} />
+        <TacticsMapWithDrawing roomId={roomId} />
         
         <p className="text-sm text-gray-500 max-w-md text-center">
           Поделитесь ссылкой с другими участниками для совместного планирования.
